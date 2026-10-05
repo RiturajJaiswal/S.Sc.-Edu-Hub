@@ -200,222 +200,565 @@
 
     <div id="toastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2"></div>
 
-    <script>
-        let currentQuizData = null;
-        let generatedContentCount = 0;
+<script>
+    let currentQuizData = null;
+    let generatedContentCount = 0;
 
-        function showToast(message, type = 'info') {
-            const toast = document.createElement('div');
-            const bgClass = type === 'error' ? 'bg-red-600' : 'bg-slate-800';
-            toast.className = `${bgClass} text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 transition-opacity duration-300 opacity-0`;
-            toast.innerHTML = `<i class="fa-solid ${type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-check'}"></i> <span class="text-sm font-medium">${message}</span>`;
-            
-            document.getElementById('toastContainer').appendChild(toast);
-            requestAnimationFrame(() => toast.classList.remove('opacity-0'));
-            
+    function showToast(message, type = "info") {
+        const toast = document.createElement("div");
+        const bgClass = type === "error" ? "bg-red-600" : "bg-slate-800";
+
+        toast.className =
+            `${bgClass} text-white px-4 py-3 rounded-lg shadow-lg ` +
+            `flex items-center gap-3 transition-opacity duration-300 opacity-0`;
+
+        const icon = document.createElement("i");
+        icon.className =
+            `fa-solid ${type === "error"
+                ? "fa-circle-exclamation"
+                : "fa-circle-check"}`;
+
+        const text = document.createElement("span");
+        text.className = "text-sm font-medium";
+        text.textContent = message;
+
+        toast.appendChild(icon);
+        toast.appendChild(text);
+
+        document.getElementById("toastContainer").appendChild(toast);
+
+        requestAnimationFrame(() => {
+            toast.classList.remove("opacity-0");
+        });
+
+        setTimeout(() => {
+            toast.classList.add("opacity-0");
+
             setTimeout(() => {
-                toast.classList.add('opacity-0');
-                setTimeout(() => toast.remove(), 300);
-            }, 5000);
+                toast.remove();
+            }, 300);
+        }, 5000);
+    }
+
+    function switchTab(tabId) {
+        ["notes", "questions", "quiz"].forEach(tab => {
+            const button = document.getElementById(`tab-${tab}`);
+            const content = document.getElementById(`content-${tab}`);
+
+            if (tab === tabId) {
+                button.classList.replace("tab-inactive", "tab-active");
+                content.classList.remove("hidden");
+            } else {
+                button.classList.replace("tab-active", "tab-inactive");
+                content.classList.add("hidden");
+            }
+        });
+    }
+
+    function copyToClipboard(elementId) {
+        const element = document.getElementById(elementId);
+        const text = element.innerText;
+
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(text)
+                .then(() => showToast("Copied to clipboard!"))
+                .catch(() => fallbackCopy(text));
+
+            return;
         }
 
-        function switchTab(tabId) {
-            ['notes', 'questions', 'quiz'].forEach(t => {
-                const btn = document.getElementById(`tab-${t}`);
-                const content = document.getElementById(`content-${t}`);
-                if (t === tabId) {
-                    btn.classList.replace('tab-inactive', 'tab-active');
-                    content.classList.remove('hidden');
-                } else {
-                    btn.classList.replace('tab-active', 'tab-inactive');
-                    content.classList.add('hidden');
+        fallbackCopy(text);
+    }
+
+    function fallbackCopy(text) {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+
+        try {
+            document.execCommand("copy");
+            showToast("Copied to clipboard!");
+        } catch (error) {
+            showToast("Unable to copy text.", "error");
+        }
+
+        textarea.remove();
+    }
+
+    async function fetchFromGemini(prompt, isJSON = false) {
+        /*
+         * Keep these API values unchanged.
+         */
+        const API_KEY = "AQ.Ab8RN6KSVezqQoaRsi6hX3V4ewyb6Soffus5xCZcR505j8Y5RA";
+        const ENDPOINT =
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+
+        const payload = {
+            contents: [
+                {
+                    parts: [
+                        {
+                            text: prompt
+                        }
+                    ]
                 }
-            });
-        }
+            ]
+        };
 
-        function copyToClipboard(elementId) {
-            const text = document.getElementById(elementId).innerText;
-            navigator.clipboard.writeText(text).then(() => {
-                showToast("Copied to clipboard!");
-            }).catch(() => {
-                // Fallback
-                const ta = document.createElement("textarea");
-                ta.value = text;
-                document.body.appendChild(ta);
-                ta.select();
-                document.execCommand("copy");
-                document.body.removeChild(ta);
-                showToast("Copied to clipboard!");
-            });
-        }
-
-        async function fetchFromGemini(prompt, isJSON = false) {
-            // Updated Hardcoded AQ API Key & Endpoint
-            const API_KEY = "AQ.Ab8RN6KSVezqQoaRsi6hX3V4ewyb6Soffus5xCZcR505j8Y5RA";
-            const ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
-
-            const payload = {
-                contents: [{ parts: [{ text: prompt }] }]
+        if (isJSON) {
+            payload.generationConfig = {
+                responseMimeType: "application/json",
+                temperature: 0.2
             };
-
-            if (isJSON) {
-                payload.generationConfig = { responseMimeType: "application/json" };
-            }
-
-            try {
-                const response = await fetch(ENDPOINT, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status} - Request blocked or failed. Are you running on localhost?`);
-                }
-
-                const data = await response.json();
-                return data.candidates[0].content.parts[0].text;
-            } catch (error) {
-                console.error("API Fetch Error:", error);
-                throw error;
-            }
         }
 
-        async function generateContent(type) {
-            const topic = document.getElementById('topicInput').value.trim();
-            if (!topic) return showToast("Please enter a topic first.", "error");
+        const response = await fetch(ENDPOINT, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
 
-            const detail = document.getElementById('noteDetail').value;
-            const diff = document.getElementById('quizDifficulty').value;
-            const count = parseInt(document.getElementById('numQuestions').value) || 5;
+        let data;
 
-            document.getElementById('emptyState').classList.add('hidden');
-            document.getElementById('resultsContainer').classList.add('hidden');
-            document.getElementById('loadingIndicator').classList.remove('hidden');
-            document.getElementById('loadingMessage').innerText = `Generating ${type}...`;
+        try {
+            data = await response.json();
+        } catch (error) {
+            throw new Error("The API returned an invalid response.");
+        }
 
-            let prompt = "";
-            let isJSON = false;
+        if (!response.ok) {
+            console.error("Gemini API error:", data);
 
-            if (type === 'notes') {
-                prompt = `You are a Social Science teacher. Topic: '${topic}'. Detail level: ${detail}. Create organized study notes using Markdown. Use headings and bullet points.`;
-            } else if (type === 'questions') {
-                prompt = `You are a Social Science examiner. Generate exactly ${count} highly probable 'last-minute' review questions on '${topic}'. Difficulty: ${diff}. Provide hints/key points for each answer. Use Markdown formatting.`;
-            } else if (type === 'quiz') {
-                prompt = `You are a Social Science teacher. Create a multiple-choice quiz on '${topic}'. Difficulty: ${diff}. Output EXACTLY a JSON array of ${count} objects. Schema: [{"question": "string", "options": ["A","B","C","D"], "answer": "Exact string from options", "explanation": "string"}]. Do not include markdown code blocks around the JSON.`;
-                isJSON = true;
+            throw new Error(
+                data?.error?.message ||
+                `Gemini request failed with status ${response.status}.`
+            );
+        }
+
+        const parts = data?.candidates?.[0]?.content?.parts || [];
+
+        const text = parts
+            .map(part => part?.text || "")
+            .join("")
+            .trim();
+
+        if (!text) {
+            console.error("Unexpected Gemini response:", data);
+            throw new Error("Gemini returned an empty response.");
+        }
+
+        return text;
+    }
+
+    function extractJsonArray(responseText) {
+        if (!responseText || typeof responseText !== "string") {
+            throw new Error("Gemini returned an empty quiz response.");
+        }
+
+        let cleaned = responseText
+            .replace(/```json/gi, "")
+            .replace(/```/g, "")
+            .trim();
+
+        const firstBracket = cleaned.indexOf("[");
+        const lastBracket = cleaned.lastIndexOf("]");
+
+        if (firstBracket === -1 || lastBracket === -1) {
+            console.error("Quiz response:", responseText);
+            throw new Error("The quiz response was not valid JSON.");
+        }
+
+        cleaned = cleaned.slice(firstBracket, lastBracket + 1);
+
+        try {
+            return JSON.parse(cleaned);
+        } catch (error) {
+            console.error("Invalid quiz JSON:", cleaned);
+            throw new Error("Gemini returned malformed quiz data.");
+        }
+    }
+
+    function normalizeQuizData(quizData) {
+        if (!Array.isArray(quizData)) {
+            throw new Error("The quiz response is not an array.");
+        }
+
+        if (quizData.length === 0) {
+            throw new Error("Gemini returned an empty quiz.");
+        }
+
+        return quizData.map((item, index) => {
+            if (!item || typeof item !== "object") {
+                throw new Error(`Invalid question ${index + 1}.`);
             }
 
-            try {
-                const responseText = await fetchFromGemini(prompt, isJSON);
-                
-                document.getElementById('loadingIndicator').classList.add('hidden');
-                document.getElementById('resultsContainer').classList.remove('hidden');
+            const question = String(item.question || "").trim();
+
+            const options = Array.isArray(item.options)
+                ? item.options
+                    .map(option => String(option).trim())
+                    .filter(Boolean)
+                : [];
+
+            const answer = String(item.answer || "").trim();
+
+            const explanation = String(
+                item.explanation || "No explanation was provided."
+            ).trim();
+
+            if (!question) {
+                throw new Error(`Question ${index + 1} has no question text.`);
+            }
+
+            if (options.length !== 4) {
+                throw new Error(
+                    `Question ${index + 1} must contain exactly four options.`
+                );
+            }
+
+            const correctOption = options.find(
+                option => option.toLowerCase() === answer.toLowerCase()
+            );
+
+            if (!correctOption) {
+                throw new Error(
+                    `The answer for question ${index + 1} does not match an option.`
+                );
+            }
+
+            return {
+                question,
+                options,
+                answer: correctOption,
+                explanation
+            };
+        });
+    }
+
+    async function generateContent(type) {
+        const topicInput = document.getElementById("topicInput");
+        const topic = topicInput.value.trim();
+
+        if (!topic) {
+            showToast("Please enter a topic first.", "error");
+            topicInput.focus();
+            return;
+        }
+
+        const detail = document.getElementById("noteDetail").value;
+        const difficulty = document.getElementById("quizDifficulty").value;
+
+        let questionCount =
+            parseInt(document.getElementById("numQuestions").value, 10) || 5;
+
+        questionCount = Math.min(Math.max(questionCount, 1), 20);
+
+        document.getElementById("emptyState").classList.add("hidden");
+        document.getElementById("resultsContainer").classList.add("hidden");
+        document.getElementById("loadingIndicator").classList.remove("hidden");
+
+        document.getElementById("loadingMessage").textContent =
+            `Generating ${type}...`;
+
+        let prompt = "";
+        let isJSON = false;
+
+        if (type === "notes") {
+            prompt = `
+You are a Social Science teacher.
+
+Topic: "${topic}"
+Detail level: "${detail}"
+
+Create organized study notes using Markdown.
+Use clear headings, bullet points, and short explanations.
+`;
+        }
+
+        if (type === "questions") {
+            prompt = `
+You are a Social Science examiner.
+
+Generate exactly ${questionCount} important exam-review questions about:
+"${topic}"
+
+Difficulty: "${difficulty}"
+
+For each question, provide hints or key points for the answer.
+Use Markdown formatting.
+`;
+        }
+
+        if (type === "quiz") {
+            prompt = `
+You are a Social Science teacher.
+
+Create exactly ${questionCount} multiple-choice questions about:
+"${topic}"
+
+Difficulty: "${difficulty}"
+
+Return ONLY a valid JSON array.
+Do not include Markdown.
+Do not use a code block.
+Do not include any text before or after the JSON.
+
+Use exactly this format:
+[
+  {
+    "question": "Question text",
+    "options": [
+      "Option A",
+      "Option B",
+      "Option C",
+      "Option D"
+    ],
+    "answer": "The exact text of the correct option",
+    "explanation": "A short explanation"
+  }
+]
+
+Rules:
+- Return exactly ${questionCount} questions.
+- Every question must have exactly four options.
+- The answer must exactly match one of the four options.
+- Do not use option letters such as A, B, C, or D as the answer.
+`;
+
+            isJSON = true;
+        }
+
+        try {
+            const responseText = await fetchFromGemini(prompt, isJSON);
+
+            if (type === "notes") {
+                document.getElementById("notesOutput").innerHTML =
+                    marked.parse(responseText);
+
                 generatedContentCount++;
-
-                if (type === 'notes') {
-                    document.getElementById('notesOutput').innerHTML = marked.parse(responseText);
-                    switchTab('notes');
-                } else if (type === 'questions') {
-                    document.getElementById('questionsOutput').innerHTML = marked.parse(responseText);
-                    switchTab('questions');
-                } else if (type === 'quiz') {
-                    // Clean potential markdown blocks if AI didn't follow strict JSON output rule
-                    let jsonStr = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
-                    const quizData = JSON.parse(jsonStr);
-                    buildQuizUI(quizData);
-                    switchTab('quiz');
-                }
-            } catch (error) {
-                document.getElementById('loadingIndicator').classList.add('hidden');
-                if(generatedContentCount === 0) document.getElementById('emptyState').classList.remove('hidden');
-                else document.getElementById('resultsContainer').classList.remove('hidden');
-                
-                showToast("Generation failed. Please ensure you are running via a local server (http://localhost) and not a local file.", "error");
+                document.getElementById("loadingIndicator").classList.add("hidden");
+                document.getElementById("resultsContainer").classList.remove("hidden");
+                switchTab("notes");
+                return;
             }
+
+            if (type === "questions") {
+                document.getElementById("questionsOutput").innerHTML =
+                    marked.parse(responseText);
+
+                generatedContentCount++;
+                document.getElementById("loadingIndicator").classList.add("hidden");
+                document.getElementById("resultsContainer").classList.remove("hidden");
+                switchTab("questions");
+                return;
+            }
+
+            if (type === "quiz") {
+                const parsedQuiz = extractJsonArray(responseText);
+                const quizData = normalizeQuizData(parsedQuiz);
+
+                buildQuizUI(quizData);
+
+                generatedContentCount++;
+                document.getElementById("loadingIndicator").classList.add("hidden");
+                document.getElementById("resultsContainer").classList.remove("hidden");
+                switchTab("quiz");
+            }
+        } catch (error) {
+            console.error("Generation failed:", error);
+
+            document.getElementById("loadingIndicator").classList.add("hidden");
+
+            if (generatedContentCount === 0) {
+                document.getElementById("emptyState").classList.remove("hidden");
+            } else {
+                document.getElementById("resultsContainer").classList.remove("hidden");
+            }
+
+            showToast(
+                error.message || "Generation failed. Please try again.",
+                "error"
+            );
+        }
+    }
+
+    function buildQuizUI(quizArray) {
+        currentQuizData = quizArray;
+
+        const container = document.getElementById("quizContainer");
+        container.innerHTML = "";
+
+        document.getElementById("quizScoreDisplay").classList.add("hidden");
+        document.getElementById("submitQuizBtn").classList.remove("hidden");
+
+        quizArray.forEach((questionData, questionIndex) => {
+            const questionWrapper = document.createElement("div");
+            questionWrapper.className =
+                "bg-slate-50 rounded-xl p-5 border border-slate-200";
+
+            const questionLabel = document.createElement("span");
+            questionLabel.className =
+                "text-xs font-bold text-slate-500 uppercase tracking-wider";
+            questionLabel.textContent =
+                `Question ${questionIndex + 1}`;
+
+            const questionTitle = document.createElement("h4");
+            questionTitle.className =
+                "font-semibold text-slate-800 mt-1";
+            questionTitle.textContent = questionData.question;
+
+            const questionHeader = document.createElement("div");
+            questionHeader.className = "mb-4";
+            questionHeader.appendChild(questionLabel);
+            questionHeader.appendChild(questionTitle);
+
+            const optionsWrapper = document.createElement("div");
+            optionsWrapper.className = "space-y-2";
+
+            questionData.options.forEach(option => {
+                const label = document.createElement("label");
+                label.className =
+                    "flex items-start gap-3 p-3 rounded-lg border " +
+                    "border-slate-200 bg-white cursor-pointer " +
+                    "hover:border-primary-300 mb-2";
+
+                const input = document.createElement("input");
+                input.type = "radio";
+                input.name = `q${questionIndex}`;
+                input.value = option;
+                input.className = "mt-1";
+
+                const optionText = document.createElement("span");
+                optionText.className = "text-sm text-slate-700";
+                optionText.textContent = option;
+
+                label.appendChild(input);
+                label.appendChild(optionText);
+                optionsWrapper.appendChild(label);
+            });
+
+            const explanation = document.createElement("div");
+            explanation.id = `exp${questionIndex}`;
+            explanation.className =
+                "mt-4 p-3 rounded-lg text-sm hidden";
+
+            questionWrapper.appendChild(questionHeader);
+            questionWrapper.appendChild(optionsWrapper);
+            questionWrapper.appendChild(explanation);
+
+            container.appendChild(questionWrapper);
+        });
+    }
+
+    function evaluateQuiz() {
+        if (!currentQuizData || currentQuizData.length === 0) {
+            showToast("Please generate a quiz first.", "error");
+            return;
         }
 
-        function buildQuizUI(quizArray) {
-            currentQuizData = quizArray;
-            const container = document.getElementById('quizContainer');
-            container.innerHTML = ''; 
-            
-            document.getElementById('quizScoreDisplay').classList.add('hidden');
-            document.getElementById('submitQuizBtn').classList.remove('hidden');
+        let allAnswered = true;
 
-            quizArray.forEach((q, index) => {
-                const qDiv = document.createElement('div');
-                qDiv.className = "bg-slate-50 rounded-xl p-5 border border-slate-200";
-                
-                let optionsHTML = '';
-                q.options.forEach((opt, optIndex) => {
-                    const safeValue = opt.replace(/"/g, '&quot;');
-                    optionsHTML += `
-                        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 bg-white cursor-pointer hover:border-primary-300 mb-2">
-                            <input name="q${index}" type="radio" value="${safeValue}" class="mt-1">
-                            <span class="text-sm text-slate-700">${opt}</span>
-                        </label>
-                    `;
-                });
+        currentQuizData.forEach((question, index) => {
+            const selected = document.querySelector(
+                `input[name="q${index}"]:checked`
+            );
 
-                qDiv.innerHTML = `
-                    <div class="mb-4">
-                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Question ${index + 1}</span>
-                        <h4 class="font-semibold text-slate-800 mt-1">${q.question}</h4>
-                    </div>
-                    <div class="space-y-2">${optionsHTML}</div>
-                    <div id="exp${index}" class="mt-4 p-3 rounded-lg text-sm hidden"></div>
-                `;
-                container.appendChild(qDiv);
-            });
+            if (!selected) {
+                allAnswered = false;
+            }
+        });
+
+        if (!allAnswered) {
+            showToast("Please answer all questions.", "error");
+            return;
         }
 
-        function evaluateQuiz() {
-            if (!currentQuizData) return;
-            let score = 0;
-            let allAnswered = true;
+        let score = 0;
 
-            currentQuizData.forEach((q, i) => {
-                if (!document.querySelector(`input[name="q${i}"]:checked`)) allAnswered = false;
-            });
+        currentQuizData.forEach((question, index) => {
+            const selectedInput = document.querySelector(
+                `input[name="q${index}"]:checked`
+            );
 
-            if(!allAnswered) return showToast("Please answer all questions.", "error");
+            const selectedAnswer = selectedInput.value;
+            const explanation = document.getElementById(`exp${index}`);
+            const inputs = document.querySelectorAll(`input[name="q${index}"]`);
 
-            currentQuizData.forEach((q, i) => {
-                const selected = document.querySelector(`input[name="q${i}"]:checked`).value;
-                const expDiv = document.getElementById(`exp${i}`);
-                
-                document.querySelectorAll(`input[name="q${i}"]`).forEach(input => {
-                    input.disabled = true;
-                    const lbl = input.closest('label');
-                    lbl.classList.remove('cursor-pointer', 'hover:border-primary-300');
-                    if (input.value === q.answer) {
-                        lbl.classList.add('border-green-400', 'bg-green-50');
-                    } else if (input.checked) {
-                        lbl.classList.add('border-red-400', 'bg-red-50');
-                    }
-                });
+            inputs.forEach(input => {
+                input.disabled = true;
 
-                expDiv.classList.remove('hidden');
-                if (selected === q.answer) {
-                    score++;
-                    expDiv.classList.add('bg-green-100', 'text-green-800');
-                    expDiv.innerHTML = `<strong>Correct!</strong> ${q.explanation}`;
-                } else {
-                    expDiv.classList.add('bg-red-100', 'text-red-800');
-                    expDiv.innerHTML = `<strong>Incorrect.</strong> Answer: ${q.answer}.<br>${q.explanation}`;
+                const label = input.closest("label");
+                label.classList.remove(
+                    "cursor-pointer",
+                    "hover:border-primary-300"
+                );
+
+                if (input.value === question.answer) {
+                    label.classList.add(
+                        "border-green-400",
+                        "bg-green-50"
+                    );
+                }
+
+                if (
+                    input.checked &&
+                    input.value !== question.answer
+                ) {
+                    label.classList.add(
+                        "border-red-400",
+                        "bg-red-50"
+                    );
                 }
             });
 
-            document.getElementById('submitQuizBtn').classList.add('hidden');
-            const scoreDisp = document.getElementById('quizScoreDisplay');
-            scoreDisp.innerText = `Score: ${score}/${currentQuizData.length}`;
-            scoreDisp.classList.remove('hidden');
-            document.getElementById('tabsNav').scrollIntoView({ behavior: 'smooth' });
-        }
+            explanation.classList.remove("hidden");
 
-        // Initialize empty state defaults
-        window.onload = () => document.getElementById('topicInput').focus();
-    </script>
+            if (selectedAnswer === question.answer) {
+                score++;
+
+                explanation.classList.add(
+                    "bg-green-100",
+                    "text-green-800"
+                );
+
+                explanation.innerHTML =
+                    `<strong>Correct!</strong> ${question.explanation}`;
+            } else {
+                explanation.classList.add(
+                    "bg-red-100",
+                    "text-red-800"
+                );
+
+                explanation.innerHTML =
+                    `<strong>Incorrect.</strong> ` +
+                    `Correct answer: ${question.answer}.<br>` +
+                    `${question.explanation}`;
+            }
+        });
+
+        document.getElementById("submitQuizBtn").classList.add("hidden");
+
+        const scoreDisplay = document.getElementById("quizScoreDisplay");
+        scoreDisplay.textContent =
+            `Score: ${score}/${currentQuizData.length}`;
+        scoreDisplay.classList.remove("hidden");
+
+        document.getElementById("tabsNav").scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+    }
+
+    window.addEventListener("load", () => {
+        document.getElementById("topicInput").focus();
+    });
+</script>
 </body>
 </html>
