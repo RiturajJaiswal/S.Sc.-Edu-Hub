@@ -290,31 +290,45 @@
         textarea.remove();
     }
 
-    async function fetchFromGemini(prompt, isJSON = false) {
-        /*
-         * Keep these API values unchanged.
-         */
-        const API_KEY = "AQ.Ab8RN6LAWosilUuV-BpKidyclaN0Apu2KrdshABJQvuKn4-Lnw";
-        const ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${API_KEY}`;
+    async function generateQuizContent(prompt) {
+  // 1. Paste your Groq API key here (Starts with gsk_)
+  const API_KEY = "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";
+  
+  // 2. Groq's official OpenAI-compatible endpoint
+  const ENDPOINT = "https://api.groq.com/openai/v1/chat/completions";
 
-        const payload = {
-            contents: [
-                {
-                    parts: [
-                        {
-                            text: prompt
-                        }
-                    ]
-                }
-            ]
-        };
+  // 3. Select your model (Llama 3 is highly recommended for this)
+  const MODEL_NAME = "llama-3.3-70b-versatile"; 
 
-        if (isJSON) {
-            payload.generationConfig = {
-                responseMimeType: "application/json",
-                temperature: 0.2
-            };
-        }
+  try {
+    const response = await fetch(ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        // Groq uses Bearer authentication
+        "Authorization": `Bearer ${API_KEY}` 
+      },
+      body: JSON.stringify({
+        model: MODEL_NAME,
+        messages: [
+          { role: "user", content: prompt }
+        ]
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    // Groq's JSON response structure is different from Gemini's
+    return data.choices[0].message.content;
+    
+  } catch (error) {
+    console.error("API Error:", error);
+    alert("Connection failed. Make sure your API key is correct and you are running on localhost.");
+  }
+}
 
         const response = await fetch(ENDPOINT, {
             method: "POST",
