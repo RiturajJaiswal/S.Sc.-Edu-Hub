@@ -3,108 +3,196 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S.Sc. Question Bank</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Marked.js is included to beautifully format the AI's markdown output -->
+    <title>S.Sc. Study Hub</title>
+    
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        primary: { 500: '#0ea5e9', 600: '#0284c7', 700: '#0369a1' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #f8fafc; }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #0284c7;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
 </head>
-<body class="bg-gray-50 min-h-screen font-sans text-gray-800">
+<body class="min-h-screen font-sans text-slate-800 flex flex-col">
 
-    <div class="max-w-4xl mx-auto p-6 md:p-8">
+    <header class="bg-white shadow-sm border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3 text-primary-600">
+                <i class="fa-solid fa-graduation-cap text-2xl"></i>
+                <h1 class="text-xl font-bold tracking-tight text-slate-900">S.Sc. Study Hub</h1>
+            </div>
+            <div class="flex items-center gap-2 text-xs font-semibold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-full">
+                <i class="fa-solid fa-wand-magic-sparkles text-purple-500"></i> AI Powered
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex flex-col lg:flex-row gap-6">
         
-        <!-- Header -->
-        <header class="text-center mb-10">
-            <h1 class="text-4xl md:text-5xl font-extrabold text-blue-700 tracking-tight mb-2">S.Sc. Question Bank</h1>
-            <p class="text-gray-500 font-medium tracking-wide text-sm">created by R-5 studios</p>
-        </header>
+        <!-- Left Sidebar -->
+        <div class="w-full lg:w-1/3 flex flex-col gap-6">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                <h2 class="text-xl font-bold text-slate-800 mb-1">Study Setup</h2>
+                <p class="text-slate-500 text-sm mb-6">Define your topic and customize the output.</p>
+                
+                <div class="mb-6">
+                    <label for="topicInput" class="block text-sm font-semibold text-slate-700 mb-1.5">Topic</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fa-solid fa-book-open text-slate-400"></i>
+                        </div>
+                        <input type="text" id="topicInput" class="block w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm transition-all" placeholder="e.g., French Revolution, Democracy">
+                    </div>
+                </div>
 
-        <!-- Configuration Panel -->
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
-            <h2 class="text-xl font-bold text-gray-700 mb-5 border-b pb-2">Configuration</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                    <label class="block text-sm font-semibold text-gray-600 mb-2">Topic or Chapter</label>
-                    <input type="text" id="config-topic" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" placeholder="e.g. French Revolution">
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 mb-6">
+                    <h3 class="text-[11px] font-bold text-slate-500 tracking-widest uppercase mb-4">Parameters</h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label for="noteDetail" class="block text-sm font-medium text-slate-700 mb-1">Notes Detailing</label>
+                            <select id="noteDetail" class="block w-full border border-slate-300 rounded-md py-2 px-3 focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-white">
+                                <option value="Brief">Brief (Quick Revision)</option>
+                                <option value="Standard" selected>Standard (Balanced)</option>
+                                <option value="Comprehensive">Comprehensive (In-depth)</option>
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="quizDifficulty" class="block text-sm font-medium text-slate-700 mb-1">Difficulty</label>
+                                <select id="quizDifficulty" class="block w-full border border-slate-300 rounded-md py-2 px-3 focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-white">
+                                    <option value="Easy">Easy</option>
+                                    <option value="Medium" selected>Medium</option>
+                                    <option value="Hard">Hard</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="numQuestions" class="block text-sm font-medium text-slate-700 mb-1">Questions</label>
+                                <input type="number" id="numQuestions" value="5" min="1" max="20" class="block w-full border border-slate-300 rounded-md py-2 px-3 focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-white">
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-600 mb-2">Difficulty</label>
-                    <select id="config-difficulty" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 outline-none transition text-gray-700">
-                        <option value="Easy">Easy</option>
-                        <option value="Medium" selected>Medium</option>
-                        <option value="Hard">Hard</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-600 mb-2">Number of Questions</label>
-                    <input type="number" id="config-quantity" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 outline-none transition" value="5" min="1" max="50">
+
+                <div class="flex flex-col gap-3">
+                    <button id="btn-notes" class="w-full flex items-center justify-center gap-2 bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 py-2.5 px-4 rounded-lg shadow-sm transition-all font-semibold">
+                        <i class="fa-regular fa-note-sticky text-yellow-500"></i> Generate Notes
+                    </button>
+                    <button id="btn-important" class="w-full flex items-center justify-center gap-2 bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 py-2.5 px-4 rounded-lg shadow-sm transition-all font-semibold">
+                        <i class="fa-solid fa-bolt text-orange-500"></i> Important Qs
+                    </button>
+                    <button id="btn-quiz" class="w-full flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white py-2.5 px-4 rounded-lg shadow-sm transition-all font-semibold">
+                        <i class="fa-solid fa-list-check"></i> Create Quiz
+                    </button>
                 </div>
             </div>
         </div>
 
-        <!-- Action Buttons -->
-        <div class="flex flex-col md:flex-row justify-center gap-4 mb-10">
-            <button id="btn-quiz" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition transform hover:-translate-y-0.5">
-                Create Quiz
-            </button>
-            <button id="btn-notes" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition transform hover:-translate-y-0.5">
-                Create Short Notes
-            </button>
-            <button id="btn-important" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition transform hover:-translate-y-0.5">
-                Last Minute Questions
-            </button>
-        </div>
-
-        <!-- Output Container -->
-        <div class="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-gray-100 min-h-[300px]" id="output-box">
-            <div id="output-content" class="prose max-w-none text-gray-700">
-                <p class="text-center text-gray-400 italic mt-10">Configure your settings and click a button above to generate content...</p>
+        <!-- Right Main Content Area -->
+        <div class="w-full lg:w-2/3 relative flex flex-col bg-white rounded-2xl shadow-sm border border-slate-200 min-h-[500px]">
+            
+            <!-- Empty State -->
+            <div id="emptyState" class="absolute inset-0 flex flex-col items-center justify-center text-center p-8">
+                <div class="bg-slate-50 w-20 h-20 rounded-full flex items-center justify-center mb-6">
+                    <div class="grid grid-cols-2 gap-1 opacity-80">
+                        <div class="w-4 h-4 bg-slate-800 rounded-sm" style="clip-path: polygon(50% 0%, 0% 100%, 100% 100%); transform: translate(50%, -20%)"></div>
+                        <div class="w-4 h-4"></div>
+                        <div class="w-4 h-4 bg-slate-800 rounded-full transform translate-x-2"></div>
+                        <div class="w-4 h-4 bg-slate-800 rounded-sm transform translate-x-2"></div>
+                    </div>
+                </div>
+                <h3 class="text-xl font-bold text-slate-800 mb-2">Ready to Study?</h3>
+                <p class="text-slate-500 text-sm max-w-sm">Enter a topic, adjust your settings, and click a generate button to start.</p>
             </div>
-        </div>
 
-    </div>
+            <!-- Loading State -->
+            <div id="loadingState" class="hidden absolute inset-0 flex flex-col items-center justify-center bg-white rounded-2xl z-10">
+                <div class="loader mb-4"></div>
+                <p class="text-slate-600 font-medium animate-pulse">Generating your study materials...</p>
+            </div>
+
+            <!-- Results State -->
+            <div id="resultsState" class="hidden p-8 flex-grow overflow-y-auto">
+                <div id="outputContent" class="prose max-w-none prose-slate"></div>
+            </div>
+
+            <!-- Floating Gemini Button -->
+            <button class="absolute bottom-6 left-6 bg-slate-900 hover:bg-black text-white px-5 py-2.5 rounded-full shadow-lg font-medium text-sm flex items-center gap-2 transition-transform hover:scale-105">
+                Ask Gemini
+            </button>
+        </div>
+    </main>
 
     <script>
-        // Wrapping everything in DOMContentLoaded guarantees the HTML exists before JS connects to it
         document.addEventListener("DOMContentLoaded", () => {
             
-            // 1. Connect HTML Elements
-            const btnQuiz = document.getElementById("btn-quiz");
             const btnNotes = document.getElementById("btn-notes");
             const btnImportant = document.getElementById("btn-important");
-            const outputContent = document.getElementById("output-content");
-            const outputBox = document.getElementById("output-box");
+            const btnQuiz = document.getElementById("btn-quiz");
+            
+            const emptyState = document.getElementById("emptyState");
+            const loadingState = document.getElementById("loadingState");
+            const resultsState = document.getElementById("resultsState");
+            const outputContent = document.getElementById("outputContent");
 
-            // 2. Groq API Settings
+            // Direct Groq API Configuration
             const API_KEY = "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";
-            // Routing through corsproxy to bypass GitHub Pages browser blocking
-            const ENDPOINT = "https://corsproxy.io/?https://api.groq.com/openai/v1/chat/completions";
+            const ENDPOINT = "https://api.groq.com/openai/v1/chat/completions";
             const MODEL = "llama-3.3-70b-versatile";
 
-            // 3. Main Generation Function
             async function generateContent(type) {
-                // Fetch current values from configuration
-                const topic = document.getElementById("config-topic").value || "General Social Science";
-                const difficulty = document.getElementById("config-difficulty").value;
-                const quantity = document.getElementById("config-quantity").value;
-
-                // Build the prompt based on which button was clicked
-                let prompt = "";
-                if (type === "quiz") {
-                    prompt = `Create a ${quantity}-question multiple choice quiz about the Social Science topic: "${topic}". Difficulty level: ${difficulty}. Provide 4 options for each question. Format cleanly and put the Answer Key clearly at the very bottom.`;
-                } else if (type === "notes") {
-                    prompt = `Create highly detailed, easy-to-read revision short notes on the Social Science topic: "${topic}". Difficulty level: ${difficulty}. Tailor the depth to be roughly equivalent to ${quantity} major bullet points of information. Use clear headings and bold text for important terms.`;
-                } else if (type === "important") {
-                    prompt = `Provide ${quantity} highly important, frequently asked exam questions for the Social Science topic: "${topic}". Difficulty level: ${difficulty}. Provide the question in bold, followed by a direct, concise answer for last-minute revision.`;
+                const topic = document.getElementById("topicInput").value.trim();
+                
+                if (!topic) {
+                    alert("Please enter a topic first.");
+                    document.getElementById("topicInput").focus();
+                    return;
                 }
 
-                // Show loading state
-                outputContent.innerHTML = `<div class="flex justify-center items-center h-full mt-10">
-                    <p class="text-blue-600 font-bold animate-pulse text-lg">Generating content via Groq... Please wait.</p>
-                </div>`;
-                outputBox.classList.add("ring-2", "ring-blue-400", "ring-offset-2");
+                const detail = document.getElementById("noteDetail").value;
+                const diff = document.getElementById("quizDifficulty").value;
+                const count = document.getElementById("numQuestions").value;
+
+                // Build Prompts
+                let prompt = "";
+                if (type === "notes") {
+                    prompt = `Act as an expert Social Science teacher. Provide study notes on the topic: "${topic}". The level of detail should be: ${detail}. Format the output in clean Markdown with logical headings, bullet points, and bold text for key terms.`;
+                } else if (type === "important") {
+                    prompt = `Act as an expert Social Science teacher. Provide exactly ${count} highly important, frequently asked exam questions for the topic: "${topic}". Difficulty level: ${diff}. Provide the question as a heading, followed by a direct, concise answer for last-minute revision. Format in clean Markdown.`;
+                } else if (type === "quiz") {
+                    prompt = `Act as an expert Social Science teacher. Create a ${count}-question multiple choice quiz on the topic: "${topic}". Difficulty level: ${diff}. Provide 4 options per question (A, B, C, D). Format nicely in Markdown and include the Answer Key clearly at the very bottom.`;
+                }
+
+                // Update UI State
+                emptyState.classList.add("hidden");
+                resultsState.classList.add("hidden");
+                loadingState.classList.remove("hidden");
 
                 try {
-                    // Make the API Call to Groq
+                    // Direct API Fetch (No Proxy)
                     const response = await fetch(ENDPOINT, {
                         method: "POST",
                         headers: {
@@ -118,32 +206,40 @@
                     });
 
                     if (!response.ok) {
-                        throw new Error(`API Error: ${response.status} ${response.statusText}`);
+                        const errData = await response.json();
+                        throw new Error(errData.error?.message || `HTTP ${response.status}`);
                     }
 
                     const data = await response.json();
-                    const rawText = data.choices[0].message.content;
+                    const rawMarkdown = data.choices[0].message.content;
 
-                    // Use Marked.js to convert the AI's markdown into clean HTML
-                    outputContent.innerHTML = marked.parse(rawText);
+                    // Render Markdown
+                    outputContent.innerHTML = marked.parse(rawMarkdown);
                     
+                    // Show Results
+                    loadingState.classList.add("hidden");
+                    resultsState.classList.remove("hidden");
+
                 } catch (error) {
-                    console.error("Fetch error:", error);
+                    console.error("API Error:", error);
+                    
                     outputContent.innerHTML = `
-                        <div class="bg-red-50 border border-red-200 p-4 rounded-lg text-red-700">
-                            <h3 class="font-bold">Connection Failed</h3>
-                            <p class="text-sm mt-1">${error.message}</p>
-                        </div>`;
-                } finally {
-                    // Remove loading ring
-                    outputBox.classList.remove("ring-2", "ring-blue-400", "ring-offset-2");
+                        <div class="bg-red-50 text-red-700 p-4 rounded-lg border border-red-200">
+                            <h3 class="text-lg font-bold mb-2">Connection Failed</h3>
+                            <p>${error.message}</p>
+                            <p class="text-sm mt-2">Ensure your API key is active and you have network connectivity.</p>
+                        </div>
+                    `;
+                    
+                    loadingState.classList.add("hidden");
+                    resultsState.classList.remove("hidden");
                 }
             }
 
-            // 4. Attach Click Listeners
-            if (btnQuiz) btnQuiz.addEventListener("click", () => generateContent("quiz"));
-            if (btnNotes) btnNotes.addEventListener("click", () => generateContent("notes"));
-            if (btnImportant) btnImportant.addEventListener("click", () => generateContent("important"));
+            // Attach Listeners
+            btnNotes.addEventListener("click", () => generateContent("notes"));
+            btnImportant.addEventListener("click", () => generateContent("important"));
+            btnQuiz.addEventListener("click", () => generateContent("quiz"));
         });
     </script>
 </body>
