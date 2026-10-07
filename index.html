@@ -3,774 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S.Sc. Custom Question Bank & Study Hub</title>
-    
+    <title>S.Sc. Question Bank</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
-                    colors: {
-                        primary: { 50: '#f0f9ff', 100: '#e0f2fe', 500: '#0ea5e9', 600: '#0284c7', 700: '#0369a1' },
-                        secondary: { 500: '#8b5cf6', 600: '#7c3aed' }
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        
-        .markdown-body h1 { @apply text-2xl font-bold mt-6 mb-4 text-gray-800; }
-        .markdown-body h2 { @apply text-xl font-bold mt-5 mb-3 text-gray-800 border-b border-gray-200 pb-2; }
-        .markdown-body h3 { @apply text-lg font-semibold mt-4 mb-2 text-gray-700; }
-        .markdown-body p { @apply mb-4 text-gray-600 leading-relaxed; }
-        .markdown-body ul { @apply list-disc pl-6 mb-4 text-gray-600 space-y-1; }
-        .markdown-body ol { @apply list-decimal pl-6 mb-4 text-gray-600 space-y-1; }
-        .markdown-body strong { @apply font-semibold text-gray-800; }
-        
-        .tab-active { @apply border-primary-600 text-primary-600 font-semibold bg-primary-50; }
-        .tab-inactive { @apply border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 hover:bg-gray-50; }
-
-        .loader {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #0ea5e9;
-            border-radius: 50%;
-            width: 28px;
-            height: 28px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    </style>
+    <!-- Marked.js is included to beautifully format the AI's markdown output -->
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
 </head>
-<body class="bg-slate-50 min-h-screen font-sans flex flex-col text-slate-800">
+<body class="bg-gray-50 min-h-screen font-sans text-gray-800">
 
-    <header class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-20">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-3 text-primary-600">
-                <div class="bg-primary-100 p-2 rounded-lg">
-                    <i class="fa-solid fa-graduation-cap text-xl"></i>
-                </div>
-                <h1 class="text-xl font-bold tracking-tight text-slate-900">S.Sc. Study Hub</h1>
-            </div>
-            <div class="flex items-center gap-2 text-sm font-medium text-slate-500 bg-slate-100 px-3 py-1.5 rounded-full">
-                <i class="fa-solid fa-wand-magic-sparkles text-secondary-500"></i> AI Powered
-            </div>
-        </div>
-    </header>
-
-    <main class="flex-grow max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex flex-col lg:flex-row gap-6">
+    <div class="max-w-4xl mx-auto p-6 md:p-8">
         
-        <div class="w-full lg:w-1/3 flex flex-col gap-6">
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 sticky top-24">
-                <h2 class="text-lg font-bold text-slate-800 mb-1">Study Setup</h2>
-                <p class="text-slate-500 text-sm mb-6">Define your topic and customize the output.</p>
-                
-                <div class="mb-5">
-                    <label for="topicInput" class="block text-sm font-semibold text-slate-700 mb-1.5">Topic</label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i class="fa-solid fa-book-open text-slate-400"></i>
-                        </div>
-                        <input type="text" id="topicInput" class="block w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm" placeholder="e.g., French Revolution, Democracy">
-                    </div>
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-blue-700 tracking-tight mb-2">S.Sc. Question Bank</h1>
+            <p class="text-gray-500 font-medium tracking-wide text-sm">created by R-5 studios</p>
+        </header>
+
+        <!-- Configuration Panel -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
+            <h2 class="text-xl font-bold text-gray-700 mb-5 border-b pb-2">Configuration</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-600 mb-2">Topic or Chapter</label>
+                    <input type="text" id="config-topic" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" placeholder="e.g. French Revolution">
                 </div>
-
-                <div class="space-y-4 bg-slate-50 p-4 rounded-lg border border-slate-100 mb-6">
-                    <h3 class="text-xs uppercase font-bold text-slate-500 tracking-wider">Parameters</h3>
-                    
-                    <div>
-                        <label for="noteDetail" class="block text-sm font-medium text-slate-700 mb-1">Notes Detailing</label>
-                        <select id="noteDetail" class="block w-full border border-slate-300 rounded-md py-2 px-3 focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-white">
-                            <option value="brief">Brief (Quick Revision)</option>
-                            <option value="standard" selected>Standard (Balanced)</option>
-                            <option value="comprehensive">Comprehensive (In-depth)</option>
-                        </select>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label for="quizDifficulty" class="block text-sm font-medium text-slate-700 mb-1">Difficulty</label>
-                            <select id="quizDifficulty" class="block w-full border border-slate-300 rounded-md py-2 px-3 focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-white">
-                                <option value="easy">Easy</option>
-                                <option value="medium" selected>Medium</option>
-                                <option value="hard">Hard</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="numQuestions" class="block text-sm font-medium text-slate-700 mb-1">Questions</label>
-                            <input type="number" id="numQuestions" value="5" min="1" max="20" class="block w-full border border-slate-300 rounded-md py-2 px-3 focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-white">
-                        </div>
-                    </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-600 mb-2">Difficulty</label>
+                    <select id="config-difficulty" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 outline-none transition text-gray-700">
+                        <option value="Easy">Easy</option>
+                        <option value="Medium" selected>Medium</option>
+                        <option value="Hard">Hard</option>
+                    </select>
                 </div>
-
-                <div class="flex flex-col gap-3">
-                    <button onclick="generateContent('notes')" class="w-full flex items-center justify-center gap-2 bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 py-2.5 px-4 rounded-lg shadow-sm transition-all font-medium">
-                        <i class="fa-regular fa-note-sticky text-yellow-500"></i> Generate Notes
-                    </button>
-                    <button onclick="generateContent('questions')" class="w-full flex items-center justify-center gap-2 bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 py-2.5 px-4 rounded-lg shadow-sm transition-all font-medium">
-                        <i class="fa-solid fa-bolt text-orange-500"></i> Important Qs
-                    </button>
-                    <button onclick="generateContent('quiz')" class="w-full flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white py-2.5 px-4 rounded-lg shadow-sm transition-all font-medium">
-                        <i class="fa-solid fa-list-check"></i> Create Quiz
-                    </button>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-600 mb-2">Number of Questions</label>
+                    <input type="number" id="config-quantity" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 outline-none transition" value="5" min="1" max="50">
                 </div>
             </div>
         </div>
 
-        <div class="w-full lg:w-2/3 flex flex-col">
+        <!-- Action Buttons -->
+        <div class="flex flex-col md:flex-row justify-center gap-4 mb-10">
+            <button id="btn-quiz" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition transform hover:-translate-y-0.5">
+                Create Quiz
+            </button>
+            <button id="btn-notes" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition transform hover:-translate-y-0.5">
+                Create Short Notes
+            </button>
+            <button id="btn-important" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition transform hover:-translate-y-0.5">
+                Last Minute Questions
+            </button>
+        </div>
+
+        <!-- Output Container -->
+        <div class="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-gray-100 min-h-[300px]" id="output-box">
+            <div id="output-content" class="prose max-w-none text-gray-700">
+                <p class="text-center text-gray-400 italic mt-10">Configure your settings and click a button above to generate content...</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Wrapping everything in DOMContentLoaded guarantees the HTML exists before JS connects to it
+        document.addEventListener("DOMContentLoaded", () => {
             
-            <div id="loadingIndicator" class="hidden bg-white rounded-xl shadow-sm border border-slate-200 p-12 flex flex-col items-center justify-center mb-6 h-full min-h-[400px]">
-                <div class="loader mb-4"></div>
-                <p id="loadingMessage" class="text-base font-medium text-slate-700 animate-pulse">Generating...</p>
-            </div>
-
-            <div id="resultsContainer" class="bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col h-full hidden">
-                <div class="border-b border-slate-200 rounded-t-xl overflow-hidden bg-slate-50/50">
-                    <nav class="flex overflow-x-auto hide-scrollbar" aria-label="Tabs" id="tabsNav">
-                        <button onclick="switchTab('notes')" id="tab-notes" class="tab-inactive whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 flex-1 justify-center">
-                            <i class="fa-regular fa-note-sticky"></i> Notes
-                        </button>
-                        <button onclick="switchTab('questions')" id="tab-questions" class="tab-inactive whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 flex-1 justify-center">
-                            <i class="fa-solid fa-bolt"></i> Exam Qs
-                        </button>
-                        <button onclick="switchTab('quiz')" id="tab-quiz" class="tab-inactive whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 flex-1 justify-center">
-                            <i class="fa-solid fa-list-check"></i> Quiz
-                        </button>
-                    </nav>
-                </div>
-
-                <div class="p-6 md:p-8 flex-grow">
-                    <!-- Notes Tab -->
-                    <div id="content-notes" class="hidden h-full flex flex-col">
-                        <div class="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
-                            <h3 class="text-xl font-bold text-slate-800">Study Notes</h3>
-                            <button onclick="copyToClipboard('notesOutput')" class="text-slate-400 hover:text-primary-600 bg-slate-50 p-2 rounded">
-                                <i class="fa-regular fa-copy text-lg"></i>
-                            </button>
-                        </div>
-                        <div id="notesOutput" class="markdown-body flex-grow"></div>
-                    </div>
-
-                    <!-- Questions Tab -->
-                    <div id="content-questions" class="hidden h-full flex flex-col">
-                         <div class="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
-                            <h3 class="text-xl font-bold text-slate-800">Exam Questions</h3>
-                            <button onclick="copyToClipboard('questionsOutput')" class="text-slate-400 hover:text-primary-600 bg-slate-50 p-2 rounded">
-                                <i class="fa-regular fa-copy text-lg"></i>
-                            </button>
-                        </div>
-                        <div id="questionsOutput" class="markdown-body flex-grow"></div>
-                    </div>
-
-                    <!-- Quiz Tab -->
-                    <div id="content-quiz" class="hidden h-full flex flex-col">
-                        <div class="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
-                            <h3 class="text-xl font-bold text-slate-800">Interactive Quiz</h3>
-                            <span id="quizScoreDisplay" class="hidden bg-green-100 text-green-800 text-sm font-bold px-4 py-1.5 rounded-full"></span>
-                        </div>
-                        <div id="quizContainer" class="space-y-6 flex-grow"></div>
-                        <div class="mt-8 pt-6 border-t border-slate-100 flex justify-end">
-                            <button id="submitQuizBtn" onclick="evaluateQuiz()" class="hidden bg-primary-600 hover:bg-primary-700 text-white font-medium py-2.5 px-8 rounded-lg shadow-sm">
-                                Submit
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Empty State -->
-            <div id="emptyState" class="bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col items-center justify-center h-full min-h-[400px] text-center p-8">
-                <div class="bg-primary-50 p-5 rounded-full mb-5 text-primary-400">
-                    <i class="fa-solid fa-shapes text-5xl"></i>
-                </div>
-                <h3 class="text-xl font-bold text-slate-800 mb-2">Ready to Study?</h3>
-                <p class="text-slate-500 text-sm max-w-md">Enter a topic, adjust your settings, and click a generate button to start.</p>
-            </div>
-        </div>
-    </main>
-
-    <div id="toastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2"></div>
-
-<script>
-    let currentQuizData = null;
-    let generatedContentCount = 0;
-
-    function showToast(message, type = "info") {
-        const toast = document.createElement("div");
-        const bgClass = type === "error" ? "bg-red-600" : "bg-slate-800";
-
-        toast.className =
-            `${bgClass} text-white px-4 py-3 rounded-lg shadow-lg ` +
-            `flex items-center gap-3 transition-opacity duration-300 opacity-0`;
-
-        const icon = document.createElement("i");
-        icon.className =
-            `fa-solid ${type === "error"
-                ? "fa-circle-exclamation"
-                : "fa-circle-check"}`;
-
-        const text = document.createElement("span");
-        text.className = "text-sm font-medium";
-        text.textContent = message;
-
-        toast.appendChild(icon);
-        toast.appendChild(text);
-
-        document.getElementById("toastContainer").appendChild(toast);
-
-        requestAnimationFrame(() => {
-            toast.classList.remove("opacity-0");
-        });
-
-        setTimeout(() => {
-            toast.classList.add("opacity-0");
-
-            setTimeout(() => {
-                toast.remove();
-            }, 300);
-        }, 5000);
-    }
-
-    function switchTab(tabId) {
-        ["notes", "questions", "quiz"].forEach(tab => {
-            const button = document.getElementById(`tab-${tab}`);
-            const content = document.getElementById(`content-${tab}`);
-
-            if (tab === tabId) {
-                button.classList.replace("tab-inactive", "tab-active");
-                content.classList.remove("hidden");
-            } else {
-                button.classList.replace("tab-active", "tab-inactive");
-                content.classList.add("hidden");
-            }
-        });
-    }
-
-    function copyToClipboard(elementId) {
-        const element = document.getElementById(elementId);
-        const text = element.innerText;
-
-        if (navigator.clipboard && window.isSecureContext) {
-            navigator.clipboard.writeText(text)
-                .then(() => showToast("Copied to clipboard!"))
-                .catch(() => fallbackCopy(text));
-
-            return;
-        }
-
-        fallbackCopy(text);
-    }
-
-    function fallbackCopy(text) {
-        const textarea = document.createElement("textarea");
-        textarea.value = text;
-        textarea.style.position = "fixed";
-        textarea.style.opacity = "0";
-
-        document.body.appendChild(textarea);
-        textarea.focus();
-        textarea.select();
-
-        try {
-            document.execCommand("copy");
-            showToast("Copied to clipboard!");
-        } catch (error) {
-            showToast("Unable to copy text.", "error");
-        }
-
-        textarea.remove();
-    }
-
-    async function generateQuizContent(prompt) {
-  // 1. Paste your Groq API key here (Starts with gsk_)
-  const API_KEY = "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";
-  
-const ENDPOINT = "https://corsproxy.io/?https://api.groq.com/openai/v1/chat/completions";
-
-  // 3. Select your model (Llama 3 is highly recommended for this)
-  const MODEL_NAME = "llama-3.3-70b-versatile"; 
-
-  try {
-    const response = await fetch(ENDPOINT, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        // Groq uses Bearer authentication
-        "Authorization": `Bearer ${API_KEY}` 
-      },
-      body: JSON.stringify({
-        model: MODEL_NAME,
-        messages: [
-          { role: "user", content: prompt }
-        ]
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    // Groq's JSON response structure is different from Gemini's
-    return data.choices[0].message.content;
-    
-  } catch (error) {
-    console.error("API Error:", error);
-    alert("Connection failed. Make sure your API key is correct and you are running on localhost.");
-  }
-}
-
-        const response = await fetch(ENDPOINT, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(payload)
-        });
-
-        let data;
-
-        try {
-            data = await response.json();
-        } catch (error) {
-            throw new Error("The API returned an invalid response.");
-        }
-
-        if (!response.ok) {
-            console.error("Gemini API error:", data);
-
-            throw new Error(
-                data?.error?.message ||
-                `Gemini request failed with status ${response.status}.`
-            );
-        }
-
-        const parts = data?.candidates?.[0]?.content?.parts || [];
-
-        const text = parts
-            .map(part => part?.text || "")
-            .join("")
-            .trim();
-
-        if (!text) {
-            console.error("Unexpected Gemini response:", data);
-            throw new Error("Gemini returned an empty response.");
-        }
-
-        return text;
-    }
-
-    function extractJsonArray(responseText) {
-        if (!responseText || typeof responseText !== "string") {
-            throw new Error("Gemini returned an empty quiz response.");
-        }
-
-        let cleaned = responseText
-            .replace(/```json/gi, "")
-            .replace(/```/g, "")
-            .trim();
-
-        const firstBracket = cleaned.indexOf("[");
-        const lastBracket = cleaned.lastIndexOf("]");
-
-        if (firstBracket === -1 || lastBracket === -1) {
-            console.error("Quiz response:", responseText);
-            throw new Error("The quiz response was not valid JSON.");
-        }
-
-        cleaned = cleaned.slice(firstBracket, lastBracket + 1);
-
-        try {
-            return JSON.parse(cleaned);
-        } catch (error) {
-            console.error("Invalid quiz JSON:", cleaned);
-            throw new Error("Gemini returned malformed quiz data.");
-        }
-    }
-
-    function normalizeQuizData(quizData) {
-        if (!Array.isArray(quizData)) {
-            throw new Error("The quiz response is not an array.");
-        }
-
-        if (quizData.length === 0) {
-            throw new Error("Gemini returned an empty quiz.");
-        }
-
-        return quizData.map((item, index) => {
-            if (!item || typeof item !== "object") {
-                throw new Error(`Invalid question ${index + 1}.`);
-            }
-
-            const question = String(item.question || "").trim();
-
-            const options = Array.isArray(item.options)
-                ? item.options
-                    .map(option => String(option).trim())
-                    .filter(Boolean)
-                : [];
-
-            const answer = String(item.answer || "").trim();
-
-            const explanation = String(
-                item.explanation || "No explanation was provided."
-            ).trim();
-
-            if (!question) {
-                throw new Error(`Question ${index + 1} has no question text.`);
-            }
-
-            if (options.length !== 4) {
-                throw new Error(
-                    `Question ${index + 1} must contain exactly four options.`
-                );
-            }
-
-            const correctOption = options.find(
-                option => option.toLowerCase() === answer.toLowerCase()
-            );
-
-            if (!correctOption) {
-                throw new Error(
-                    `The answer for question ${index + 1} does not match an option.`
-                );
-            }
-
-            return {
-                question,
-                options,
-                answer: correctOption,
-                explanation
-            };
-        });
-    }
-
-    async function generateContent(type) {
-        const topicInput = document.getElementById("topicInput");
-        const topic = topicInput.value.trim();
-
-        if (!topic) {
-            showToast("Please enter a topic first.", "error");
-            topicInput.focus();
-            return;
-        }
-
-        const detail = document.getElementById("noteDetail").value;
-        const difficulty = document.getElementById("quizDifficulty").value;
-
-        let questionCount =
-            parseInt(document.getElementById("numQuestions").value, 10) || 5;
-
-        questionCount = Math.min(Math.max(questionCount, 1), 20);
-
-        document.getElementById("emptyState").classList.add("hidden");
-        document.getElementById("resultsContainer").classList.add("hidden");
-        document.getElementById("loadingIndicator").classList.remove("hidden");
-
-        document.getElementById("loadingMessage").textContent =
-            `Generating ${type}...`;
-
-        let prompt = "";
-        let isJSON = false;
-
-        if (type === "notes") {
-            prompt = `
-You are a Social Science teacher.
-
-Topic: "${topic}"
-Detail level: "${detail}"
-
-Create organized study notes using Markdown.
-Use clear headings, bullet points, and short explanations.
-`;
-        }
-
-        if (type === "questions") {
-            prompt = `
-You are a Social Science examiner.
-
-Generate exactly ${questionCount} important exam-review questions about:
-"${topic}"
-
-Difficulty: "${difficulty}"
-
-For each question, provide hints or key points for the answer.
-Use Markdown formatting.
-`;
-        }
-
-        if (type === "quiz") {
-            prompt = `
-You are a Social Science teacher.
-
-Create exactly ${questionCount} multiple-choice questions about:
-"${topic}"
-
-Difficulty: "${difficulty}"
-
-Return ONLY a valid JSON array.
-Do not include Markdown.
-Do not use a code block.
-Do not include any text before or after the JSON.
-
-Use exactly this format:
-[
-  {
-    "question": "Question text",
-    "options": [
-      "Option A",
-      "Option B",
-      "Option C",
-      "Option D"
-    ],
-    "answer": "The exact text of the correct option",
-    "explanation": "A short explanation"
-  }
-]
-
-Rules:
-- Return exactly ${questionCount} questions.
-- Every question must have exactly four options.
-- The answer must exactly match one of the four options.
-- Do not use option letters such as A, B, C, or D as the answer.
-`;
-
-            isJSON = true;
-        }
-
-        try {
-            const responseText = await fetchFromGemini(prompt, isJSON);
-
-            if (type === "notes") {
-                document.getElementById("notesOutput").innerHTML =
-                    marked.parse(responseText);
-
-                generatedContentCount++;
-                document.getElementById("loadingIndicator").classList.add("hidden");
-                document.getElementById("resultsContainer").classList.remove("hidden");
-                switchTab("notes");
-                return;
-            }
-
-            if (type === "questions") {
-                document.getElementById("questionsOutput").innerHTML =
-                    marked.parse(responseText);
-
-                generatedContentCount++;
-                document.getElementById("loadingIndicator").classList.add("hidden");
-                document.getElementById("resultsContainer").classList.remove("hidden");
-                switchTab("questions");
-                return;
-            }
-
-            if (type === "quiz") {
-                const parsedQuiz = extractJsonArray(responseText);
-                const quizData = normalizeQuizData(parsedQuiz);
-
-                buildQuizUI(quizData);
-
-                generatedContentCount++;
-                document.getElementById("loadingIndicator").classList.add("hidden");
-                document.getElementById("resultsContainer").classList.remove("hidden");
-                switchTab("quiz");
-            }
-        } catch (error) {
-            console.error("Generation failed:", error);
-
-            document.getElementById("loadingIndicator").classList.add("hidden");
-
-            if (generatedContentCount === 0) {
-                document.getElementById("emptyState").classList.remove("hidden");
-            } else {
-                document.getElementById("resultsContainer").classList.remove("hidden");
-            }
-
-            showToast(
-                error.message || "Generation failed. Please try again.",
-                "error"
-            );
-        }
-    }
-
-    function buildQuizUI(quizArray) {
-        currentQuizData = quizArray;
-
-        const container = document.getElementById("quizContainer");
-        container.innerHTML = "";
-
-        document.getElementById("quizScoreDisplay").classList.add("hidden");
-        document.getElementById("submitQuizBtn").classList.remove("hidden");
-
-        quizArray.forEach((questionData, questionIndex) => {
-            const questionWrapper = document.createElement("div");
-            questionWrapper.className =
-                "bg-slate-50 rounded-xl p-5 border border-slate-200";
-
-            const questionLabel = document.createElement("span");
-            questionLabel.className =
-                "text-xs font-bold text-slate-500 uppercase tracking-wider";
-            questionLabel.textContent =
-                `Question ${questionIndex + 1}`;
-
-            const questionTitle = document.createElement("h4");
-            questionTitle.className =
-                "font-semibold text-slate-800 mt-1";
-            questionTitle.textContent = questionData.question;
-
-            const questionHeader = document.createElement("div");
-            questionHeader.className = "mb-4";
-            questionHeader.appendChild(questionLabel);
-            questionHeader.appendChild(questionTitle);
-
-            const optionsWrapper = document.createElement("div");
-            optionsWrapper.className = "space-y-2";
-
-            questionData.options.forEach(option => {
-                const label = document.createElement("label");
-                label.className =
-                    "flex items-start gap-3 p-3 rounded-lg border " +
-                    "border-slate-200 bg-white cursor-pointer " +
-                    "hover:border-primary-300 mb-2";
-
-                const input = document.createElement("input");
-                input.type = "radio";
-                input.name = `q${questionIndex}`;
-                input.value = option;
-                input.className = "mt-1";
-
-                const optionText = document.createElement("span");
-                optionText.className = "text-sm text-slate-700";
-                optionText.textContent = option;
-
-                label.appendChild(input);
-                label.appendChild(optionText);
-                optionsWrapper.appendChild(label);
-            });
-
-            const explanation = document.createElement("div");
-            explanation.id = `exp${questionIndex}`;
-            explanation.className =
-                "mt-4 p-3 rounded-lg text-sm hidden";
-
-            questionWrapper.appendChild(questionHeader);
-            questionWrapper.appendChild(optionsWrapper);
-            questionWrapper.appendChild(explanation);
-
-            container.appendChild(questionWrapper);
-        });
-    }
-
-    function evaluateQuiz() {
-        if (!currentQuizData || currentQuizData.length === 0) {
-            showToast("Please generate a quiz first.", "error");
-            return;
-        }
-
-        let allAnswered = true;
-
-        currentQuizData.forEach((question, index) => {
-            const selected = document.querySelector(
-                `input[name="q${index}"]:checked`
-            );
-
-            if (!selected) {
-                allAnswered = false;
-            }
-        });
-
-        if (!allAnswered) {
-            showToast("Please answer all questions.", "error");
-            return;
-        }
-
-        let score = 0;
-
-        currentQuizData.forEach((question, index) => {
-            const selectedInput = document.querySelector(
-                `input[name="q${index}"]:checked`
-            );
-
-            const selectedAnswer = selectedInput.value;
-            const explanation = document.getElementById(`exp${index}`);
-            const inputs = document.querySelectorAll(`input[name="q${index}"]`);
-
-            inputs.forEach(input => {
-                input.disabled = true;
-
-                const label = input.closest("label");
-                label.classList.remove(
-                    "cursor-pointer",
-                    "hover:border-primary-300"
-                );
-
-                if (input.value === question.answer) {
-                    label.classList.add(
-                        "border-green-400",
-                        "bg-green-50"
-                    );
+            // 1. Connect HTML Elements
+            const btnQuiz = document.getElementById("btn-quiz");
+            const btnNotes = document.getElementById("btn-notes");
+            const btnImportant = document.getElementById("btn-important");
+            const outputContent = document.getElementById("output-content");
+            const outputBox = document.getElementById("output-box");
+
+            // 2. Groq API Settings
+            const API_KEY = "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";
+            // Routing through corsproxy to bypass GitHub Pages browser blocking
+            const ENDPOINT = "https://corsproxy.io/?https://api.groq.com/openai/v1/chat/completions";
+            const MODEL = "llama-3.3-70b-versatile";
+
+            // 3. Main Generation Function
+            async function generateContent(type) {
+                // Fetch current values from configuration
+                const topic = document.getElementById("config-topic").value || "General Social Science";
+                const difficulty = document.getElementById("config-difficulty").value;
+                const quantity = document.getElementById("config-quantity").value;
+
+                // Build the prompt based on which button was clicked
+                let prompt = "";
+                if (type === "quiz") {
+                    prompt = `Create a ${quantity}-question multiple choice quiz about the Social Science topic: "${topic}". Difficulty level: ${difficulty}. Provide 4 options for each question. Format cleanly and put the Answer Key clearly at the very bottom.`;
+                } else if (type === "notes") {
+                    prompt = `Create highly detailed, easy-to-read revision short notes on the Social Science topic: "${topic}". Difficulty level: ${difficulty}. Tailor the depth to be roughly equivalent to ${quantity} major bullet points of information. Use clear headings and bold text for important terms.`;
+                } else if (type === "important") {
+                    prompt = `Provide ${quantity} highly important, frequently asked exam questions for the Social Science topic: "${topic}". Difficulty level: ${difficulty}. Provide the question in bold, followed by a direct, concise answer for last-minute revision.`;
                 }
 
-                if (
-                    input.checked &&
-                    input.value !== question.answer
-                ) {
-                    label.classList.add(
-                        "border-red-400",
-                        "bg-red-50"
-                    );
+                // Show loading state
+                outputContent.innerHTML = `<div class="flex justify-center items-center h-full mt-10">
+                    <p class="text-blue-600 font-bold animate-pulse text-lg">Generating content via Groq... Please wait.</p>
+                </div>`;
+                outputBox.classList.add("ring-2", "ring-blue-400", "ring-offset-2");
+
+                try {
+                    // Make the API Call to Groq
+                    const response = await fetch(ENDPOINT, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${API_KEY}`
+                        },
+                        body: JSON.stringify({
+                            model: MODEL,
+                            messages: [{ role: "user", content: prompt }]
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`API Error: ${response.status} ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+                    const rawText = data.choices[0].message.content;
+
+                    // Use Marked.js to convert the AI's markdown into clean HTML
+                    outputContent.innerHTML = marked.parse(rawText);
+                    
+                } catch (error) {
+                    console.error("Fetch error:", error);
+                    outputContent.innerHTML = `
+                        <div class="bg-red-50 border border-red-200 p-4 rounded-lg text-red-700">
+                            <h3 class="font-bold">Connection Failed</h3>
+                            <p class="text-sm mt-1">${error.message}</p>
+                        </div>`;
+                } finally {
+                    // Remove loading ring
+                    outputBox.classList.remove("ring-2", "ring-blue-400", "ring-offset-2");
                 }
-            });
-
-            explanation.classList.remove("hidden");
-
-            if (selectedAnswer === question.answer) {
-                score++;
-
-                explanation.classList.add(
-                    "bg-green-100",
-                    "text-green-800"
-                );
-
-                explanation.innerHTML =
-                    `<strong>Correct!</strong> ${question.explanation}`;
-            } else {
-                explanation.classList.add(
-                    "bg-red-100",
-                    "text-red-800"
-                );
-
-                explanation.innerHTML =
-                    `<strong>Incorrect.</strong> ` +
-                    `Correct answer: ${question.answer}.<br>` +
-                    `${question.explanation}`;
             }
+
+            // 4. Attach Click Listeners
+            if (btnQuiz) btnQuiz.addEventListener("click", () => generateContent("quiz"));
+            if (btnNotes) btnNotes.addEventListener("click", () => generateContent("notes"));
+            if (btnImportant) btnImportant.addEventListener("click", () => generateContent("important"));
         });
-
-        document.getElementById("submitQuizBtn").classList.add("hidden");
-
-        const scoreDisplay = document.getElementById("quizScoreDisplay");
-        scoreDisplay.textContent =
-            `Score: ${score}/${currentQuizData.length}`;
-        scoreDisplay.classList.remove("hidden");
-
-        document.getElementById("tabsNav").scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-        });
-    }
-
-    window.addEventListener("load", () => {
-        document.getElementById("topicInput").focus();
-    });
-</script>
+    </script>
 </body>
 </html>
