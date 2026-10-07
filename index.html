@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>S.Sc. Question Bank</title>
-    <!-- Added typography plugin so the AI's markdown formats correctly -->
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
-    <!-- Marked.js is included to beautifully format the AI's markdown output -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body class="bg-gray-50 min-h-screen font-sans text-gray-800">
@@ -65,7 +63,6 @@
     </div>
 
     <script>
-        // Wrapping everything in DOMContentLoaded guarantees the HTML exists before JS connects to it
         document.addEventListener("DOMContentLoaded", () => {
             
             // 1. Connect HTML Elements
@@ -75,37 +72,44 @@
             const outputContent = document.getElementById("output-content");
             const outputBox = document.getElementById("output-box");
 
-            // 2. Groq API Settings
+            // 2. Direct Groq API Settings
             const API_KEY = "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";
-            // connecting directly to the Groq API (removed the corsproxy.io wrapper)
             const ENDPOINT = "https://api.groq.com/openai/v1/chat/completions";
-            const MODEL = "openai/gpt-oss-120b";
+            const MODEL = "llama-3.3-70b-versatile";
 
             // 3. Main Generation Function
             async function generateContent(type) {
-                // Fetch current values from configuration
                 const topic = document.getElementById("config-topic").value || "General Social Science";
                 const difficulty = document.getElementById("config-difficulty").value;
                 const quantity = document.getElementById("config-quantity").value;
 
-                // Build the prompt based on which button was clicked
                 let prompt = "";
+                
+                // For the quiz, we force the AI to return a strict JSON structure
                 if (type === "quiz") {
-                    prompt = `Create a ${quantity}-question multiple choice quiz about the Social Science topic: "${topic}". Difficulty level: ${difficulty}. Provide 4 options for each question. Format cleanly and put the Answer Key clearly at the very bottom.`;
+                    prompt = `Create a ${quantity}-question multiple choice quiz about the Social Science topic: "${topic}". Difficulty level: ${difficulty}. 
+                    You MUST return ONLY a valid JSON array of objects. Do not include markdown, do not include backticks (\`\`\`), and do not include any introductory text. 
+                    Structure each object exactly like this:
+                    [
+                      {
+                        "question": "The question text here",
+                        "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
+                        "correctIndex": 0
+                      }
+                    ]
+                    (Where correctIndex is the integer index 0-3 of the correct answer).`;
                 } else if (type === "notes") {
                     prompt = `Create highly detailed, easy-to-read revision short notes on the Social Science topic: "${topic}". Difficulty level: ${difficulty}. Tailor the depth to be roughly equivalent to ${quantity} major bullet points of information. Use clear headings and bold text for important terms.`;
                 } else if (type === "important") {
                     prompt = `Provide ${quantity} highly important, frequently asked exam questions for the Social Science topic: "${topic}". Difficulty level: ${difficulty}. Provide the question in bold, followed by a direct, concise answer for last-minute revision.`;
                 }
 
-                // Show loading state
                 outputContent.innerHTML = `<div class="flex justify-center items-center h-full mt-10">
-                    <p class="text-blue-600 font-bold animate-pulse text-lg">Generating content via Groq... Please wait.</p>
+                    <p class="text-blue-600 font-bold animate-pulse text-lg">Connecting directly to Groq... Please wait.</p>
                 </div>`;
                 outputBox.classList.add("ring-2", "ring-blue-400", "ring-offset-2");
 
                 try {
-                    // Make the API Call to Groq
                     const response = await fetch(ENDPOINT, {
                         method: "POST",
                         headers: {
@@ -119,25 +123,98 @@
                     });
 
                     if (!response.ok) {
-                        throw new Error(`API Error: ${response.status} ${response.statusText}`);
+                        const errorData = await response.json().catch(() => ({}));
+                        throw new Error(errorData?.error?.message || `API Error: ${response.status} ${response.statusText}`);
                     }
 
                     const data = await response.json();
-                    const rawText = data.choices[0].message.content;
+                    let rawText = data.choices[0].message.content;
 
-                    // Use Marked.js to convert the AI's markdown into clean HTML
-                    outputContent.innerHTML = marked.parse(rawText);
+                    // If it's a quiz, parse the JSON and build interactive HTML
+                    if (type === "quiz") {
+                        // Clean up markdown block if the AI ignored instructions
+                        rawText = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
+                        renderInteractiveQuiz(rawText);
+                    } else {
+                        // If it's notes or questions, just parse standard Markdown
+                        outputContent.innerHTML = marked.parse(rawText);
+                    }
                     
                 } catch (error) {
                     console.error("Fetch error:", error);
                     outputContent.innerHTML = `
                         <div class="bg-red-50 border border-red-200 p-4 rounded-lg text-red-700">
-                            <h3 class="font-bold">Connection Failed</h3>
+                            <h3 class="font-bold">Error Processing Request</h3>
                             <p class="text-sm mt-1">${error.message}</p>
+                            <p class="text-xs text-red-500 mt-3 font-semibold">If using GitHub Pages, ensure you perform a Hard Refresh (Ctrl + F5).</p>
                         </div>`;
                 } finally {
-                    // Remove loading ring
                     outputBox.classList.remove("ring-2", "ring-blue-400", "ring-offset-2");
+                }
+            }
+
+            // Function to render and handle the interactive JSON quiz
+            function renderInteractiveQuiz(jsonString) {
+                try {
+                    const quizData = JSON.parse(jsonString);
+                    let html = '<div class="space-y-8">';
+                    
+                    quizData.forEach((q, qIndex) => {
+                        html += `
+                        <div class="quiz-block bg-white p-6 rounded-xl border border-gray-200 shadow-sm transition" data-answered="false">
+                            <h3 class="text-lg font-bold text-gray-800 mb-5">${qIndex + 1}. ${q.question}</h3>
+                            <div class="space-y-3">`;
+                                
+                        q.options.forEach((opt, oIndex) => {
+                            const isCorrect = (oIndex === q.correctIndex);
+                            html += `<button class="quiz-option w-full text-left p-4 rounded-lg border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50 font-medium transition duration-200" data-correct="${isCorrect}">
+                                        ${opt}
+                                     </button>`;
+                        });
+                        
+                        html += `</div></div>`;
+                    });
+                    html += '</div>';
+                    outputContent.innerHTML = html;
+
+                    // Attach click logic for right/wrong grading
+                    const blocks = outputContent.querySelectorAll('.quiz-block');
+                    blocks.forEach(block => {
+                        const options = block.querySelectorAll('.quiz-option');
+                        
+                        options.forEach(optionBtn => {
+                            optionBtn.addEventListener('click', function() {
+                                // Prevent answering multiple times per question
+                                if (block.dataset.answered === "true") return;
+                                block.dataset.answered = "true";
+
+                                const isCorrect = this.dataset.correct === "true";
+
+                                // Grade the entire block visually
+                                options.forEach(btn => {
+                                    btn.classList.remove('hover:border-blue-400', 'hover:bg-blue-50');
+                                    
+                                    if (btn.dataset.correct === "true") {
+                                        // Highlight correct answer in green
+                                        btn.classList.add('border-green-500', 'bg-green-50', 'text-green-700');
+                                    } else {
+                                        // Dim incorrect answers
+                                        btn.classList.add('opacity-50');
+                                    }
+                                });
+
+                                // If the user clicked the wrong answer, highlight their choice in red
+                                if (!isCorrect) {
+                                    this.classList.remove('opacity-50');
+                                    this.classList.add('border-red-500', 'bg-red-50', 'text-red-700');
+                                }
+                            });
+                        });
+                    });
+
+                } catch (e) {
+                    console.error("JSON Parse Error:", e, jsonString);
+                    outputContent.innerHTML = `<p class="text-red-600 font-bold">The AI failed to format the quiz correctly. Please click Create Quiz again.</p>`;
                 }
             }
 
